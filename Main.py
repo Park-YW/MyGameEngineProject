@@ -4,6 +4,7 @@ from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from Object import *
+from OBB import *
 
 camera_pos = [0.0, 5.0, 5.0]  # 카메라 위치
 camera_target = [0.0, 0.0, 0.0]  # 카메라가 바라보는 점
@@ -37,13 +38,15 @@ glEnable(GL_LIGHT0)
 
 # Change path name to suit your directory structure
 meshes = []
-mesh = Cube()
+cube1 = Cube(0,0.1,0)
 #meshes.append(mesh)
-point1 = Cube()
-point1.Scale(1)
-point1.Translation((0, 0 ,1))
-#meshes.append(point1)
+cube2 = Cube(0,0,0)
+cube2.Translation((1.1, 0.1, 0.1))
+#point1.Translation((0, 0 ,1))
+meshes.append(cube1)
+meshes.append(cube2)
 
+test = False
 
 while not done:
     for event in pygame.event.get():
@@ -53,22 +56,57 @@ while not done:
     
     key = pygame.key.get_pressed()
     if key[pygame.K_w]:
-        mesh.Rotation('z',5)
-        #mesh.Translation((0,0,0.1))
+        meshes[0].Translation((0,0,-0.1))
     if key[pygame.K_s]:
-        mesh.Rotation('x',-5)
-        #mesh.Translation((0,0,-0.01))
+        meshes[0].Translation((0,0,0.1))
+    if key[pygame.K_a]:
+        meshes[0].Translation((-0.1,0,0))
+    if key[pygame.K_d]:
+        meshes[0].Translation((0.1,0,0))
+    if key[pygame.K_q]:
+        meshes[0].Translation((0,0.1,0))
+    if key[pygame.K_e]:
+        meshes[0].Translation((0,-0.1,0))
+    
+    if key[pygame.K_i]:
+        meshes[0].Rotation('z', 5)
+    if key[pygame.K_k]:
+        meshes[0].Rotation('z', -5)
+    if key[pygame.K_j]:
+        meshes[0].Rotation('x', 5)
+    if key[pygame.K_l]:
+        meshes[0].Rotation('x', -5)
+    if key[pygame.K_u]:
+        meshes[0].Rotation('y', 5)
+    if key[pygame.K_o]:
+        meshes[0].Rotation('y', -5)
+
+    #test
+    if key[pygame.K_m]:
+        test = True
+    
+
+
+    
+
+    for models in meshes:
+        models.Update()
+
+    if check_obb_collision(meshes[0],meshes[1]):
+        test = True
+        print("충돌---------------------")
+    else:
+        test = False
+        print("-----------------------------------")
+    
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     
-    
-    
-    #glRotatef(5, 1, 0, 1)
+
     
     #glBegin(GL_POLYGON)
     for models in meshes:
-        models.draw()
-    mesh.draw()
+        models.draw(test)
     #glEnd()
 
     pygame.display.flip()

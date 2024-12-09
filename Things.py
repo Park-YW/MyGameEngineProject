@@ -1,8 +1,8 @@
 from Object import *
 
 class Cube(Object):
-    def __init__(self):
-        Object.__init__(self)
+    def __init__(self, x, y, z, mass = 1, bounce = 0.5, name = None, is_static = False):
+        Object.__init__(self, x, y, z)
         self.vertices = [(0.5, -0.5, 0.5),
                         (-0.5, -0.5, 0.5),
                         (0.5, 0.5, 0.5),
@@ -36,8 +36,8 @@ class Cube(Object):
         
         
 class Ground(Object):
-    def __init__(self):
-        Object.__init__(self)
+    def __init__(self, x, y, z, mass = 1, bounce = 0.5, name = None, is_static = False):
+        Object.__init__(self, x, y, z)
         self.vertices = [(10, -5, 10),
                         (10, -5, -10),
                         (-10, -5, -10),
