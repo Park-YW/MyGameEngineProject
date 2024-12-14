@@ -10,13 +10,16 @@ def minusArray(arr):
 def arrayMulti(A, B):
     return (A[0]*B[0], A[1]*B[1], A[2]*B[2])
 
-class OBB:
-    def __init__(self, center, axes, half_sizes):
-        self.center = np.array(center)
-        self.axes = np.array(axes)  # 3x3 matrix
-        self.half_sizes = np.array(half_sizes)  # 3x1 vector
+def tupleMinus(A, B):
+    return (A[0]-B[0], A[1]-B[1], A[2]-B[2],)
 
-def overlap_on_axis(obb1, obb2, axis):
+def normal(v1, v2, v3):
+    vec1 = tupleMinus(v3, v2)
+    vec2 = tupleMinus(v1, v2)
+    return np.cross(vec1, vec2)
+
+
+def overlap_on_axis(obb1 : Object, obb2 : Object, axis):
     def project(obb : Object):
         isFirst = True
         centerProjection = np.dot(axis, obb.center)
@@ -41,59 +44,25 @@ def overlap_on_axis(obb1, obb2, axis):
 
     return not (max1 <= min2 or max2 <= min1)
 
-def check_obb_collision(obb1, obb2):
-    for i in range(3):
-        axis = matrixtoarray(obb1.axes[i])
+def check_obb_collision(obb1 : Object, obb2 : Object):
+    for i in range(len(obb1.trangles)//3):
+        axis = normal(obb1.vertices[obb1.trangles[i*3]], obb1.vertices[obb1.trangles[i*3+1]], obb1.vertices[obb1.trangles[i*3+2]])
+        if not overlap_on_axis(obb1, obb2, axis):
+            return False
+    for i in range(len(obb2.trangles)//3):
+        axis = normal(obb2.vertices[obb2.trangles[i*3]], obb2.vertices[obb2.trangles[i*3+1]], obb2.vertices[obb2.trangles[i*3+2]])
         if not overlap_on_axis(obb1, obb2, axis):
             return False
 
-        axis = matrixtoarray(-obb2.axes[i])
-        if not overlap_on_axis(obb1, obb2, axis):
-            return False
-        print("ahtj")
-        for j in range(3):
-            axis = matrixtoarray(np.cross(obb1.axes[i], obb2.axes[j]))
-            if np.linalg.norm(axis) > 1e-6:
-                if not overlap_on_axis(obb1, obb2, axis):
-                    return False
+    for i in range(len(obb1.trangles)//3):
+        for j in range(len(obb2.trangles)//3):
+            for k in range(3):
+                vec1 = tupleMinus(obb1.vertices[obb1.trangles[i*3+k]], obb1.vertices[obb1.trangles[i*3+(k+1)%3]])
+                vec2 = tupleMinus(obb2.vertices[obb2.trangles[j*3+k]], obb2.vertices[obb2.trangles[j*3+(k+1)%3]])
+                axis = np.cross(vec1, vec2)
+                if np.linalg.norm(axis) > 1e-6:
+                    if not overlap_on_axis(obb1, obb2, axis):
+                        return False
+ 
 
     return True
-
-# 정육면체의 8개 점을 기준으로 OBB 생성
-def create_obb_from_cube(cube_vertices):
-    center = np.mean(cube_vertices, axis=0)
-    axes = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])  # 정육면체의 축
-    half_sizes = np.array([1, 1, 1])  # 반 크기 (정육면체의 반 변 길이)
-
-    return OBB(center, axes, half_sizes)
-
-# 정육면체의 8개 점
-cube_vertices1 = np.array([
-    [1, 1, 1],
-    [1, 1, -1],
-    [1, -1, 1],
-    [1, -1, -1],
-    [-1, 1, 1],
-    [-1, 1, -1],
-    [-1, -1, 1],
-    [-1, -1, -1]
-])
-
-cube_vertices2 = np.array([
-    [0.5, 0.5, 0.5],
-    [0.5, 0.5, -0.5],
-    [0.5, -0.5, 0.5],
-    [0.5, -0.5, -0.5],
-    [-0.5, 0.5, 0.5],
-    [-0.5, 0.5, -0.5],
-    [-0.5, -0.5, 0.5],
-    [-0.5, -0.5, -0.5]
-])
-
-obb1 = create_obb_from_cube(cube_vertices1)
-obb2 = create_obb_from_cube(cube_vertices2)
-
-"""if check_obb_collision(obb1, obb2):
-    print("충돌 발생!")
-else:
-    print("충돌 없음.")"""

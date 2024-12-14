@@ -72,7 +72,7 @@ class Object:
         self.axes = CutRest(self.rotationBuffer) # 3x3 matrix
         self.sizes = self.ScaleBuffer  # 3x1 vector
 
-        self.Color = [(0,1,0), (1,0,0), (0,0,1), (1,1,0), (0,1,1), (1,0,1),]
+        self.Color = [(0,1,0), (0.7,0,0), (0,0,1), (1,1,0), (0,1,1), (1,0,1),]
 
         Tmatrix = matrix([  [1, 0, 0, x],
                             [0, 1, 0, y],
