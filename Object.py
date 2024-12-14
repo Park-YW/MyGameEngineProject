@@ -2,7 +2,6 @@ from OpenGL.GL import *
 #from numpy.matrixlib import *
 from numpy import *
 from random import *
-from Vector3D import *
 
 
 
@@ -71,7 +70,7 @@ class Object:
         
         self.center = ReturnHomo((self.translationBuffer@ToHomo((0,0,0))))
         self.axes = CutRest(self.rotationBuffer) # 3x3 matrix
-        self.half_sizes = (0.5,0.5,0.5)  # 3x1 vector
+        self.sizes = self.ScaleBuffer  # 3x1 vector
 
         self.Color = [(0,1,0), (1,0,0), (0,0,1), (1,1,0), (0,1,1), (1,0,1),]
 
@@ -84,7 +83,7 @@ class Object:
     def Update(self):
         self.center = ReturnHomo((self.translationBuffer@ToHomo((0,0,0))))
         self.axes = CutRest(self.rotationBuffer)  # 3x3 matrix
-        self.half_sizes = (0.5,0.5,0.5)  # 3x1 vector
+        self.sizes = MatrixtoArray(self.ScaleBuffer)  # 3x1 vector
 
     def Rotation(self, axis = 'x', degree = 0):
         Rmatrix = IDENTITY
@@ -118,10 +117,10 @@ class Object:
                                 [0, 0, 0, 1.0]])
             self.translationBuffer *= Tmatrix
             
-    def Scale(self, size=1.):
-        Smatrix = matrix([  [size, 0, 0, 0],
-                            [0, size, 0, 0],
-                            [0, 0, size, 0],
+    def Scale(self, x = 1, y = 1, z = 1):
+        Smatrix = matrix([  [x, 0, 0, 0],
+                            [0, y, 0, 0],
+                            [0, 0, z, 0],
                             [0, 0, 0, 1.0]])
         self.ScaleBuffer *= Smatrix
         

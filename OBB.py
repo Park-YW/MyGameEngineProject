@@ -1,10 +1,14 @@
 import numpy as np
+from Object import *
 
 def matrixtoarray(ma : np.matrix):
     return [ma[0, 0], ma[0, 1], ma[0, 2]]
 
 def minusArray(arr):
     return [-arr[0], -arr[1], -arr[2]]
+
+def arrayMulti(A, B):
+    return (A[0]*B[0], A[1]*B[1], A[2]*B[2])
 
 class OBB:
     def __init__(self, center, axes, half_sizes):
@@ -13,49 +17,47 @@ class OBB:
         self.half_sizes = np.array(half_sizes)  # 3x1 vector
 
 def overlap_on_axis(obb1, obb2, axis):
-    def project(obb):
-        projection = matrixtoarray(obb.axes@axis)
+    def project(obb : Object):
+        isFirst = True
         centerProjection = np.dot(axis, obb.center)
-        proj1 = np.dot(projection,minusArray(obb.half_sizes))+centerProjection
-        proj2 = np.dot(projection,obb.half_sizes)+centerProjection
-        if proj1 > proj2:
-            min_proj = proj2
-            max_proj = proj1
-        else:
-            min_proj = proj1
-            max_proj = proj2
+        for vertex in obb.vertices:
+            #projection = matrixtoarray(obb.axes@axis)
+            projection = matrixtoarray(obb.axes@arrayMulti(vertex,obb.sizes))
+            proj = np.dot(projection,axis)+centerProjection
+            
+            if isFirst:
+                min_proj = proj
+                max_proj = proj
+                isFirst = False
+            else:
+                if min_proj > proj:
+                    min_proj = proj
+                elif max_proj < proj:
+                    max_proj = proj
         return min_proj, max_proj
 
     min1, max1 = project(obb1)
     min2, max2 = project(obb2)
 
-    print(min1, max1, min2, max2)
-    print(not (max1 < min2 or max2 < min1))
-
     return not (max1 <= min2 or max2 <= min1)
 
 def check_obb_collision(obb1, obb2):
-    rr = True
-    r2 = True
-    print("nor")
     for i in range(3):
         axis = matrixtoarray(obb1.axes[i])
         if not overlap_on_axis(obb1, obb2, axis):
-            rr = False
+            return False
 
         axis = matrixtoarray(-obb2.axes[i])
         if not overlap_on_axis(obb1, obb2, axis):
-            rr = False
-    
-    print("ex")
-    for i in range(3):
+            return False
+        print("ahtj")
         for j in range(3):
             axis = matrixtoarray(np.cross(obb1.axes[i], obb2.axes[j]))
             if np.linalg.norm(axis) > 1e-6:
-                if not overlap_on_axis(obb1, obb2, axis) and not j == 1:
-                    r2 = False
+                if not overlap_on_axis(obb1, obb2, axis):
+                    return False
 
-    return rr or r2
+    return True
 
 # 정육면체의 8개 점을 기준으로 OBB 생성
 def create_obb_from_cube(cube_vertices):
